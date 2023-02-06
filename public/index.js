@@ -1,25 +1,29 @@
 const button = document.getElementById('button');
 
-button.addEventListener('click', () => {
-    const audioElement = document.getElementById('audio');
-    audioElement.src = '';
+function fetchCurrentBird(){
+  const audioElement = document.getElementById('audio');
+  audioElement.src = '';
 
-    const infoElement = document.getElementById('info');
-    infoElement.textContent = 'Loading...';
+  const infoElement = document.getElementById('info');
+  infoElement.textContent = 'Loading...';
 
-    fetch('/bird/current')
-      .then(response => response.json())
-      .then(async recording => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        let sound = recording.file;
-        audioElement.src = sound;
-        audioElement.addEventListener('canplay', () => audioElement.play(), { once: true });
-        infoElement.textContent = `The ${recording.gen} ${recording.sp} ${recording.en ? `(${recording.en}) ` : ''}was recorded in ${recording.loc} on ${recording.date}`;
-      })
-      .catch (error => {
-        console.error(error);
-      });
-  });
+  fetch('/bird/current')
+    .then(response => response.json())
+    .then(async recording => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      let sound = recording.file;
+      audioElement.src = sound;
+      audioElement.addEventListener('canplay', () => audioElement.play(), { once: true });
+      infoElement.textContent = `The ${recording.gen} ${recording.sp} ${recording.en ? `(${recording.en}) ` : ''}was recorded in ${recording.loc} on ${recording.date}`;
+    })
+    .catch (error => {
+      console.error(error);
+    });
+}
+
+button.addEventListener('click', fetchCurrentBird);
+
+window.addEventListener('load', fetchCurrentBird);
 
 
 
