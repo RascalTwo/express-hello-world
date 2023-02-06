@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/cyclic-software/express-hello-world#readme",
   "dependencies": {
+    "@cyclic.sh/dynamodb": "^0.0.33",
     "axios": "^1.3.2",
     "express": "^4.17.1"
   },

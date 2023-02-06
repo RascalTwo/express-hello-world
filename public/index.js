@@ -1,18 +1,13 @@
 const button = document.getElementById('button');
 
 button.addEventListener('click', () => {
-    fetch('https://xeno-canto.org/api/2/recordings?query=q:A+len:12')
+    fetch('/bird/current')
       .then(response => response.json())
-      .then(data => {
-        let recordings = data.recordings;
-        if (recordings && recordings.length > 0) {
-          let randomIndex = Math.floor(Math.random() * recordings.length);
-          let sound = recordings[randomIndex].file;
-          const audioElement = document.getElementById('audio');
-          audioElement.src = sound;
-        } else {
-          console.error('The "recordings" array is not defined or has no elements');
-        }
+      .then(recording => {
+        let sound = recording.file;
+        const audioElement = document.getElementById('audio');
+        audioElement.src = sound;
+        document.querySelector('#info').textContent = `The ${recording.gen} ${recording.sp} (${recording.en}) was recorded in ${recording.loc} on ${recording.date}`;
       })
       .catch (error => {
         console.error(error);

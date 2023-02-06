@@ -1,5 +1,6 @@
 const express = require('express')
 const path = require("path");
+const birdController = require('./controller.js')
 const app = express()
 const axios = require('axios')
 
@@ -24,6 +25,8 @@ var options = {
   redirect: false
 }
 app.use(express.static('public', options))
+
+app.use('/bird', birdController);
 
 // #############################################################################
 // Catch all handler for all other request.
