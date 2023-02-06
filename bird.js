@@ -5,7 +5,7 @@ const db = CyclicDb(process.env.CYCLIC_DB);
 const collection = db.collection("globals")
 
 async function fetchRandomBirdRecording(){
-  const { data } = await axios.get('https://xeno-canto.org/api/2/recordings?query=q:A+len:12+grp:grasshoppers');
+  const { data } = await axios.get('https://xeno-canto.org/api/2/recordings?query=q:A+len:12+grp:birds');
   const recordings = data.recordings;
   const index = Math.floor(Math.random() * recordings.length);
   return recordings[index];
