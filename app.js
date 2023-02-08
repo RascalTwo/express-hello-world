@@ -1,6 +1,7 @@
+require('dotenv').config();
 const express = require('express')
 const path = require("path");
-const birdController = require('./controller.js')
+const router = require('./services/router.js');
 const app = express()
 const axios = require('axios')
 
@@ -26,7 +27,7 @@ var options = {
 }
 app.use(express.static('public', options))
 
-app.use('/bird', birdController);
+app.use('/', router);
 
 // #############################################################################
 // Catch all handler for all other request.

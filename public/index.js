@@ -1,47 +1,51 @@
 const button = document.getElementById('button');
+const audioElement = document.getElementById('audio');
+const infoElement = document.getElementById('info');
 
-function fetchCurrentBird(){
-  const audioElement = document.getElementById('audio');
+function clearRecording() {
   audioElement.src = '';
-
-  const infoElement = document.getElementById('info');
   infoElement.textContent = 'Loading...';
+}
 
+/**
+ * @param {import('../services/bird/types.js').BaseBird} recording
+ */
+async function renderBirdRecording(recording) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  let sound = recording.file;
+  audioElement.src = sound;
+  audioElement.addEventListener('canplay', () => audioElement.play(), { once: true });
+  infoElement.textContent = `The ${recording.gen} ${recording.sp} ${recording.ssp ? recording.ssp + ' ' : ''}${recording.en ? `(${recording.en}) ` : ''
+    }was recorded in ${recording.loc} (${recording.cnt}) on ${recording.date}`;
+}
+
+function fetchCurrentBird() {
+  clearRecording();
   fetch('/bird/current')
     .then(response => response.json())
-    .then(async recording => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      let sound = recording.file;
-      audioElement.src = sound;
-      audioElement.addEventListener('canplay', () => audioElement.play(), { once: true });
-      infoElement.textContent = `The ${recording.gen} ${recording.sp} ${recording.en ? `(${recording.en}) ` : ''}was recorded in ${recording.loc} on ${recording.date}`;
-    })
-    .catch (error => {
+    .then(renderBirdRecording)
+    .catch(error => {
       console.error(error);
     });
 }
 
 button.addEventListener('click', fetchCurrentBird);
 
-window.addEventListener('load', fetchCurrentBird);
+async function listenForBirdUpdates(readKey) {
+  const ably = new Ably.Realtime.Promise(readKey);
+  await ably.connection.once('connected');
+  console.log('Connected to Ably!');
 
+  const birdChannel = ably.channels.get('bird');
+  await birdChannel.subscribe('current', message => {
+    console.log('Received a current bird message in realtime: ' + message);
+    clearRecording();
+    renderBirdRecording(message.data);
+  });
+}
 
-
-
-
-
-
-
-  // button.addEventListener('click', () => {
-//     fetch('https://xeno-canto.org/api/2/recordings?query=q:A+len:12')
-//     .then(response => response.json())
-//     .then(data => {
-//       let sound = data.recordings
-//       console.log(sound)
-//       const audioElement = document.getElementById('audio');
-//       audioElement.src = sound
-//     })
-//     .catch (error => {
-//       console.error(error);
-//     })
-//   })
+window.addEventListener('load', async () => {
+  fetchCurrentBird();
+  const { readKey } = await fetch('/realtime/info').then(response => response.json());
+  return listenForBirdUpdates(readKey);
+});
