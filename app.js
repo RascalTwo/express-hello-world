@@ -1,4 +1,10 @@
-require('dotenv').config();
+try {
+  require('dotenv').config();
+} catch (_) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('Failed to import "dotenv"');
+  }
+}
 const express = require('express')
 const path = require("path");
 const router = require('./services/router.js');
