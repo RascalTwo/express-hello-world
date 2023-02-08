@@ -32,15 +32,20 @@ function fetchCurrentBird() {
 button.addEventListener('click', fetchCurrentBird);
 
 async function listenForBirdUpdates(readKey) {
-  const ably = new Ably.Realtime.Promise(readKey);
-  await ably.connection.once('connected');
-  console.log('Connected to Ably!');
+  const es = new EventSource(`https://realtime.ably.io/sse?v=1.2&key=${readKey}&channels=bird`);
+  es.addEventListener('open', () =>
+    console.log('Connected to Ably SSE!')
+  );
 
-  const birdChannel = ably.channels.get('bird');
-  await birdChannel.subscribe('current', message => {
-    console.log('Received a current bird message in realtime: ' + message);
+  es.addEventListener('error', error =>
+    console.error('Error', error.data ? error.data : 'connecting to Ably SSE')
+  );
+
+  es.addEventListener('message', event => {
+    const message = JSON.parse(event.data);
+    console.log('Received a current bird message in realtime: ', message);
     clearRecording();
-    renderBirdRecording(message.data);
+    renderBirdRecording(JSON.parse(message.data));
   });
 }
 
