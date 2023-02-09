@@ -3,36 +3,31 @@
 body {
   background-color: #FFBDBD;
   text-align: center;
-  height: 100vh;
-}
-
-.container{
+  height: 98vh;
   display: flex;
-  flex-direction: column;
-  width: 100%;
   align-items: center;
   justify-content: center;
-  padding-top: 18rem;
+  flex-direction: column;
 }
 
-#button {
-  background-color:#002233;
-  /* width: 100px; */
-  padding: 1rem;
+body > * {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+figure > * {
+  max-height: 65vh;
+}
+
+section {
+  flex-direction: column;
+}
+
+#info {
+  gap: 1ch;
+}
+
+span, a {
   font-weight: bold;
-  font-size: 1.2rem;
-  color: white;
-  width: 300px;
-  border: none;
-  border-radius: 5px;
-  box-shadow: 0 0 10px #000;
-}
-
-span {
-  font-weight: bold;
-  padding: 2rem 0rem;
-}
-
-audio {
-  background-color: #B7E8FF;
 }

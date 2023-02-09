@@ -1,18 +1,18 @@
 const router = require('express').Router();
 
-const birdRouter = require('./bird/router.js');
+const furredRouter = require('./furred/router.js');
 const realtimeRouter = require('./realtime/router.js');
 
 const controller = require('./controller.js');
 
 const hasHeaderValue = require('../middleware/has-header-value.js');
 
-router.use('/bird', birdRouter);
+router.use('/furred', furredRouter);
 router.use('/realtime', realtimeRouter);
 router.get(
-  '/randomizeBirdAndNotify',
-  hasHeaderValue('x-bird-notify-secret', process.env.RANDOMIZE_BIRD_AND_NOTIFY_SECRET),
-  controller.randomizeBirdAndNotify,
+  '/randomizeFurredAndNotify',
+  hasHeaderValue('x-furred-notify-secret', process.env.RANDOMIZE_FURRED_AND_NOTIFY_SECRET),
+  controller.randomizeFurredAndNotify,
 );
 
 module.exports = router;

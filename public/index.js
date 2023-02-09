@@ -1,56 +1,80 @@
-const button = document.getElementById('button');
-const audioElement = document.getElementById('audio');
-const infoElement = document.getElementById('info');
+const figure = document.querySelector('figure');
+const info = document.querySelector('#info');
+const animal = document.querySelector('#animal');
+const source = document.querySelector('#source');
+const countdown = document.querySelector('time');
 
-function clearRecording() {
-  audioElement.src = '';
-  infoElement.textContent = 'Loading...';
+function startLoading() {
+  figure.innerHTML = '';
+  info.style.display = 'none';
 }
 
 /**
- * @param {import('../services/bird/types.js').BaseBird} recording
+ * @param {import("../services/furred/types").Furred} furred
  */
-async function renderBirdRecording(recording) {
+async function renderFurred(furred) {
   await new Promise(resolve => setTimeout(resolve, 1000));
-  let sound = recording.file;
-  audioElement.src = sound;
-  audioElement.addEventListener('canplay', () => audioElement.play(), { once: true });
-  infoElement.textContent = `The ${recording.gen} ${recording.sp} ${recording.ssp ? recording.ssp + ' ' : ''}${recording.en ? `(${recording.en}) ` : ''
-    }was recorded in ${recording.loc} (${recording.cnt}) on ${recording.date}`;
+  const isVideo = furred.url.endsWith('.mp4') || furred.url.endsWith('.av1');
+  figure.innerHTML = isVideo
+    ? `<video src="${furred.url}" autoplay loop muted playsinline></video>`
+    : `<img src="${furred.url}" alt="${furred.animal}">`;
+  animal.textContent = furred.animal;
+  source.textContent = furred.source;
+  source.href = `https://${furred.source}`;
+  info.style.display = 'flex';
 }
 
-function fetchCurrentBird() {
-  clearRecording();
-  fetch('/bird/current')
+function fetchCurrentFurred() {
+  startLoading();
+  fetch('/furred/current')
     .then(response => response.json())
-    .then(renderBirdRecording)
+    .then(renderFurred)
     .catch(error => {
       console.error(error);
     });
 }
 
-button.addEventListener('click', fetchCurrentBird);
+function startCountdown(seconds, refetchOnZero) {
+  setInterval(() => {
+    seconds--;
 
-async function listenForBirdUpdates(readKey) {
-  const es = new EventSource(`https://realtime.ably.io/sse?v=1.2&key=${readKey}&channels=bird`);
-  es.addEventListener('open', () =>
-    console.log('Connected to Ably SSE!')
-  );
+    const minutesLeft = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, '0');
+    const secondsLeft = (seconds % 60).toString().padStart(2, '0');
+    countdown.textContent = `${minutesLeft}:${secondsLeft}`;
+    countdown.dateTime = `PT${minutesLeft}M${secondsLeft}S`;
 
-  es.addEventListener('error', error =>
-    console.error('Error', error.data ? error.data : 'connecting to Ably SSE')
-  );
+    if (!seconds) {
+      if (refetchOnZero) fetchCurrentFurred();
+      seconds = 1200;
+    }
+  }, 1000);
+}
+
+async function listenForFurredUpdates(readKey) {
+  const es = new EventSource(`https://realtime.ably.io/sse?v=1.2&key=${readKey}&channels=furred`);
+  es.addEventListener('open', () => console.log('Connected to Ably SSE!'));
+
+  es.addEventListener('error', error => console.error('Error', error.data ? error.data : 'connecting to Ably SSE'));
 
   es.addEventListener('message', event => {
     const message = JSON.parse(event.data);
-    console.log('Received a current bird message in realtime: ', message);
-    clearRecording();
-    renderBirdRecording(JSON.parse(message.data));
+    console.log('Received a current furred message in realtime: ', message);
+    startLoading();
+    renderFurred(JSON.parse(message.data));
   });
 }
 
 window.addEventListener('load', async () => {
-  fetchCurrentBird();
+  fetchCurrentFurred();
   const { readKey } = await fetch('/realtime/info').then(response => response.json());
-  return listenForBirdUpdates(readKey);
+  const manuallyRefetch = !readKey;
+
+  const started = new Date();
+  startCountdown(
+    (19 + +manuallyRefetch - (started.getUTCMinutes() % 20)) * 60 + (60 - started.getUTCSeconds()),
+    manuallyRefetch,
+  );
+  if (!manuallyRefetch) listenForFurredUpdates(readKey);
 });

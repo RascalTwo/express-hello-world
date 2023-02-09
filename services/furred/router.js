@@ -4,6 +4,6 @@ const hasHeaderValue = require('../../middleware/has-header-value.js');
 
 router.get('/current', controller.getCurrent);
 
-router.get('/randomize', hasHeaderValue('x-bird-secret', process.env.RANDOMIZE_BIRD_SECRET), controller.randomize);
+router.get('/randomize', hasHeaderValue('x-furred-secret', process.env.RANDOMIZE_FURRED_SECRET), controller.randomize);
 
 module.exports = router;

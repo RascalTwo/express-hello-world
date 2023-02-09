@@ -1,11 +1,11 @@
-const birdService = require('./bird/service.js');
+const furredService = require('./furred/service.js');
 const realtimeService = require('./realtime/service.js');
 
 module.exports = {
   /** @type {import('express').RequestHandler} */
-  async randomizeBirdAndNotify(_, response) {
-    const newBird = await birdService.randomizeCurrentBird();
-    await realtimeService.publish('bird', { name: 'current', data: newBird });
-    return response.json(newBird);
+  async randomizeFurredAndNotify(_, response) {
+    const newFurred = await furredService.randomizeCurrentFurred();
+    await realtimeService.publish('furred', { name: 'current', data: newFurred });
+    return response.json(newFurred);
   },
 };
