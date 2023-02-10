@@ -1,0 +1,44 @@
+<%- include('partials/header') %> <%- include('partials/user-aside') %>
+
+<section>
+  <h1><%= favorites.length %> favorites</h1>
+  <ul>
+    <% for (const favorite of favorites) { %>
+    <li>
+      <figure>
+        <% if (favorite.url.endsWith('.mp4') || favorite.url.endsWith('.av1')) { %>
+        <video src="<%= favorite.url %>" controls></video>
+        <% } else { %>
+        <img src="<%= favorite.url %>" alt="<%= favorite.animal %>" />
+        <% } %>
+      </figure>
+      <div>
+        <span><%= favorite.animal %></span> from <a href="https://<%= favorite.source %>/"><%= favorite.source %></a>
+      </div>
+      <p>
+        <% var start = new Date(favorite.id); var end = new Date(start); end.setMinutes(end.getMinutes() + 20); %>
+        <time datetime="<%= start.toISOString() %>"> <%= start.toDateString() %> </time>
+        <time
+          datetime="<%= start.getHours().toString().padStart(2, '0') %>:<%= start.getMinutes().toString().padStart(2, '0') %>"
+        >
+          <%= start.toLocaleTimeString() %>
+        </time>
+        to
+        <time
+          datetime="<%= end.getHours().toString().padStart(2, '0') %>:<%= end.getMinutes().toString().padStart(2, '0') %>"
+        >
+          <%= end.toLocaleTimeString() %>
+        </time>
+      </p>
+      <% if (user) { %> <% var isFavorite = currentUserFavorites.some(currentFav => currentFav.id === favorite.id); %>
+      <a
+        href="/furred/<%= isFavorite ? 'un' : '' %>favorite/<%= encodeURIComponent(favorite.id) %>?returnTo=<%= encodeURIComponent('/favorites') %>"
+        ><%= isFavorite ? 'Unf' : 'F' %>avorite</a
+      >
+      <% } %>
+    </li>
+    <% } %>
+  </ul>
+</section>
+
+<%- include('partials/footer') %>

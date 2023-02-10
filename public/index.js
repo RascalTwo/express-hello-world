@@ -3,6 +3,7 @@ const info = document.querySelector('#info');
 const animal = document.querySelector('#animal');
 const source = document.querySelector('#source');
 const countdown = document.querySelector('time');
+const favoriteAnchor = document.querySelector('#favorite-anchor');
 
 function startLoading() {
   figure.innerHTML = '';
@@ -77,4 +78,15 @@ window.addEventListener('load', async () => {
     manuallyRefetch,
   );
   if (!manuallyRefetch) listenForFurredUpdates(readKey);
+
+  const furredStatus = await fetch('/user/current-furred-status').then(response => response.json());
+  if (furredStatus === null) return favoriteAnchor.remove();
+  favoriteAnchor.textContent = furredStatus ? 'Unfavorite' : 'Favorite';
+  favoriteAnchor.href = `/furred/${furredStatus ? 'un' : ''}favorite`;
+});
+
+document.querySelector('#sign-out-anchor')?.addEventListener('click', async event => {
+  event.preventDefault();
+  await fetch('/user/signin', { headers: { Authorization: 'Basic ' + window.btoa(Date.now() + ':' + 'logging-out') } });
+  window.location.reload();
 });

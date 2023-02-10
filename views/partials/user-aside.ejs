@@ -1,0 +1,12 @@
+<aside>
+  <% if (user) { %> <% if (url === '/') { %>
+  <a href="/favorites">Favorites</a>
+  <% } else { %>
+  <a href="/">Home</a>
+  <% } %>
+  <a href="/user/signout">Sign Out</a>
+  <% } else { %>
+  <a href="/signin">Sign In</a>
+  <a href="/signup">Sign Up</a>
+  <% } %>
+</aside>

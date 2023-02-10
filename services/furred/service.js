@@ -1,10 +1,6 @@
-const axios = require('axios');
-
-const CyclicDb = require('@cyclic.sh/dynamodb');
-const db = CyclicDb(process.env.CYCLIC_DB);
-const collection = db.collection('globals');
-
+const Globals = require('../../models/Globals.js');
 const apis = require('./apis');
+const { calculateThirdOfDate } = require('../../functions.js');
 
 const animalsToApis = {
   Dog: [apis.dogCEO, apis.randomDog, apis.shibeOnline],
@@ -22,8 +18,7 @@ const animalKeys = Object.keys(animalsToApis);
  * @returns {Promise<import('./types.js').Furred>}
  */
 async function fetchRandomFurredImage() {
-  const now = new Date();
-  const third = now.getUTCHours() * 3 + Math.floor(now.getUTCMinutes() / 20);
+  const third = calculateThirdOfDate();
 
   const animal = animalKeys[third % animalKeys.length];
   const methods = animalsToApis[animal];
@@ -40,7 +35,7 @@ async function fetchRandomFurredImage() {
  */
 async function randomizeCurrentFurred() {
   const furred = await fetchRandomFurredImage();
-  await collection.set('currentFurred', furred);
+  await Globals.set('currentFurred', furred);
   return furred;
 }
 
@@ -48,10 +43,12 @@ async function randomizeCurrentFurred() {
  * @returns {Promise<import('./types.js').Furred | null>}
  */
 async function getCurrentFurredFromDatabase() {
-  const currentFurred = await collection.get('currentFurred');
-  if (currentFurred) return currentFurred.props;
+  const currentFurred = await Globals.get('currentFurred');
+  if (!currentFurred) return null;
 
-  return null;
+  delete currentFurred.props.created;
+  delete currentFurred.props.updated;
+  return currentFurred.props;
 }
 
 /**

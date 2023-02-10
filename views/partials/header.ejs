@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Furred of the Third</title>
+    <!-- stylesheet is main.css -->
+    <link rel="stylesheet" href="/main.css" />
+  </head>
+  <body>
+    <% for (const key in messages) { %> <% for (const message of messages[key]) { %>
+    <div class="message message-<%= key %>"><%= message %></div>
+    <% } %> <% } %>
